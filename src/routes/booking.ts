@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express'
-import bookingController from '../controllers/bookingController'
+import express from 'express'
+import { getBookingList, createBooking } from '../controllers/booking'
 const router = express.Router()
 
-router.get('/bookings', bookingController.getBookingList)
+router.get('/bookings', getBookingList)
+router.post('/bookings', createBooking)
 
 export { router as bookingRouter }
