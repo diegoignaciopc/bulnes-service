@@ -4,8 +4,8 @@ interface BookingDocument extends Document {
   _id?: ObjectId
   parkingSlotId: ObjectId
   startedAt: Date
-  finishedAt: Date
-  price: number
+  finishedAt?: Date
+  price?: number
   plate: string
 }
 
@@ -13,8 +13,8 @@ interface BookingInput {
   _id?: BookingDocument['_id']
   parkingSlotId: BookingDocument['parkingSlotId']
   startedAt: BookingDocument['startedAt']
-  finishedAt: BookingDocument['finishedAt']
-  price: BookingDocument['price']
+  finishedAt?: BookingDocument['finishedAt']
+  price?: BookingDocument['price']
   plate: BookingDocument['plate']
 }
 
@@ -30,11 +30,11 @@ const bookingSchema = new Schema<BookingDocument>(
     },
     finishedAt: {
       type: Date,
-      required: true,
+      required: false,
     },
     price: {
       type: Number,
-      required: true,
+      required: false,
     },
     plate: {
       type: String,

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model, Document, ObjectId } from 'mongoose'
 
-enum ParkingSlotStatus {
+export enum ParkingSlotStatus {
   AVAILABLE = 'available',
   UNAVAILABLE = 'unavailable',
 }
