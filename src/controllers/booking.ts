@@ -12,7 +12,9 @@ export const createBooking = async (req: Request, res: Response) => {
   const { parkingSlotId, plate }: BookingInput = req.body
 
   if (!parkingSlotId || !plate) {
-    return res.status(422).json({ message: 'The fields parkingSlotId and plate are required' })
+    return res
+      .status(422)
+      .json({ message: 'The fields parkingSlotId and plate are required' })
   }
 
   const bookingCreated = await Booking.create<BookingInput>({
@@ -32,7 +34,6 @@ export const createBooking = async (req: Request, res: Response) => {
 interface FinishBookingParams {
   parkingSlotId: BookingInput['parkingSlotId']
   total: BookingInput['total']
-  finishedAt: BookingInput['finishedAt']
 }
 export const finishBooking = async (req: Request, res: Response) => {
   const { parkingSlotId, total }: FinishBookingParams = req.body
@@ -41,7 +42,9 @@ export const finishBooking = async (req: Request, res: Response) => {
   if (!bookingId || !parkingSlotId || !total) {
     return res
       .status(422)
-      .json({ message: 'The fields bookingId, parkingSlotId and price  are required' })
+      .json({
+        message: 'The fields bookingId, parkingSlotId and price  are required',
+      })
   }
 
   const bookingFinished = await Booking.findByIdAndUpdate(
