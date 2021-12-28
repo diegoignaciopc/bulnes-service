@@ -1,19 +1,22 @@
-import mongoose from 'mongoose'
-const Schema = mongoose.Schema
+import mongoose, { Document, Model, ObjectId, Schema } from 'mongoose'
 
-interface User {
-  id: string
+interface UserDocument extends Document{
+  _id?: ObjectId
   name: string
   email: string
   password: string
   dni: string
   phone: number
 }
-const userSchema = new Schema<User>({
-  id: {
-    type: String,
-    required: true,
-  },
+interface UserInput {
+  _id: UserDocument['_id']
+  name: UserDocument['name']
+  email:UserDocument['email']
+  password: UserDocument['password']
+  dni: UserDocument['dni']
+  phone: UserDocument['phone']
+}
+const userSchema = new Schema<UserDocument>({
   name: {
     type: String,
     required: true,
@@ -26,10 +29,21 @@ const userSchema = new Schema<User>({
     type: String,
     required: true,
   },
-  dni: String,
-  phone: Number,
-})
+  dni: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: Number,
+    required: true,
+  },
+  },
+  {
+    collection: 'users',
+    timestamps: true,
+  },
+  )
 
-const User = mongoose.model('User', userSchema)
+const Users: Model<UserDocument> = mongoose.model<UserDocument>('User', userSchema)
 
-export default User
+export { Users, UserDocument, UserInput }

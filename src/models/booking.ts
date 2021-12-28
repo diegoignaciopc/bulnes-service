@@ -1,36 +1,53 @@
-import mongoose from 'mongoose'
-const Schema = mongoose.Schema
+import mongoose, { Document, Model, ObjectId, Schema } from 'mongoose'
 
-interface Booking {
-  id: string
-  place: string
-  startDate: string
-  endDate: string
-  price: string
+interface BookingDocument extends Document {
+  _id?: ObjectId
+  parkingSlotId: ObjectId
+  startedAt?: Date
+  finishedAt?: Date
+  total?: number
   plate: string
 }
-const bookingSchema = new Schema<Booking>({
-  id: {
-    type: String,
-    required: true,
-  },
-  place: {
-    type: String,
-    required: true,
-  },
-  startDate: String,
-  endDate: String,
-  price: {
-    type: String,
-    required: true,
-  },
-  plate: {
-    type: String,
-    minLength: 6,
-    maxLength: 6,
-  },
-})
 
-const Booking = mongoose.model('Booking', bookingSchema)
+interface BookingInput {
+  _id?: BookingDocument['_id']
+  parkingSlotId: BookingDocument['parkingSlotId']
+  startedAt?: BookingDocument['startedAt']
+  finishedAt?: BookingDocument['finishedAt']
+  total?: BookingDocument['total']
+  plate: BookingDocument['plate']
+}
 
-export default Booking
+const bookingSchema = new Schema<BookingDocument>(
+  {
+    parkingSlotId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    startedAt: {
+      type: Date,
+      required: false,
+    },
+    finishedAt: {
+      type: Date,
+      required: false,
+    },
+    total: {
+      type: Number,
+      required: false,
+    },
+    plate: {
+      type: String,
+      minLength: 6,
+      maxLength: 6,
+    },
+  },
+  {
+    collection: 'bookings',
+    timestamps: true,
+  },
+)
+
+const Booking: Model<BookingDocument> = mongoose.model<BookingDocument>('Booking', bookingSchema)
+
+export { Booking, BookingInput, BookingDocument }

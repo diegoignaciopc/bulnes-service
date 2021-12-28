@@ -1,31 +1,43 @@
-import mongoose from 'mongoose'
-const Schema = mongoose.Schema
+import mongoose, { Schema, Model, Document, ObjectId } from 'mongoose'
 
-enum ParkingSlotStatus {
+export enum ParkingSlotStatus {
   AVAILABLE = 'available',
   UNAVAILABLE = 'unavailable',
 }
-interface ParkingSlot {
-  id: string
+
+interface ParkingSlotDocument extends Document {
+  _id?: ObjectId
   name: string
   status: ParkingSlotStatus
 }
-const parkingSlotSchema = new Schema<ParkingSlot>({
-  id: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    default: ParkingSlotStatus.AVAILABLE,
-    enum: Object.values(ParkingSlotStatus),
-  },
-})
 
-const ParkingSlot = mongoose.model('ParkingSlot', parkingSlotSchema)
+interface ParkingSlotInput {
+  _id?: ParkingSlotDocument['_id']
+  name: ParkingSlotDocument['name']
+  status: ParkingSlotDocument['status']
+}
 
-export default ParkingSlot
+const parkingSlotSchema = new Schema<ParkingSlotDocument>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      default: ParkingSlotStatus.AVAILABLE,
+      enum: Object.values(ParkingSlotStatus),
+    },
+  },
+  {
+    collection: 'parkingSlots',
+    timestamps: true,
+  },
+)
+
+const ParkingSlot: Model<ParkingSlotDocument> = mongoose.model<ParkingSlotDocument>(
+  'ParkingSlot',
+  parkingSlotSchema,
+)
+
+export { ParkingSlot, ParkingSlotInput, ParkingSlotDocument }

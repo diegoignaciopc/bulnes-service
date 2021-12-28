@@ -1,7 +1,8 @@
 import express from 'express'
-import parkingSlotController from '../controllers/parkingSlotController'
+import { getParkingSlotList, createParkingSlot } from '../controllers/parkingSlot'
 const router = express.Router()
 
-router.get('/parking', parkingSlotController.getParkingSlotList)
+router.get('/parkings', getParkingSlotList)
+router.post('/parkings', createParkingSlot)
 
 export { router as parkingRouter }
