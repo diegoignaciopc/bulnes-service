@@ -13,9 +13,7 @@ app.use(bookingRouter)
 app.use(parkingRouter)
 app.use(userRouter)
 
-//app.use(express.urlencoded({extended: false}))
-
-// app.use(userRoutes)
+// app.use(express.urlencoded({extended: false}))
 
 app.listen(app.get('port'), () => {
   console.log('Aplicación corriendo en el puerto ' + app.get('port'))
