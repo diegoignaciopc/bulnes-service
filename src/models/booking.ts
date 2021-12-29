@@ -7,6 +7,7 @@ interface BookingDocument extends Document {
   finishedAt?: Date
   total?: number
   plate: string
+  elapsedMinutes?: number
 }
 
 interface BookingInput {
@@ -16,6 +17,7 @@ interface BookingInput {
   finishedAt?: BookingDocument['finishedAt']
   total?: BookingDocument['total']
   plate: BookingDocument['plate']
+  elapsedMinutes?: BookingDocument['elapsedMinutes']
 }
 
 const bookingSchema = new Schema<BookingDocument>(
@@ -41,6 +43,10 @@ const bookingSchema = new Schema<BookingDocument>(
       minLength: 6,
       maxLength: 6,
     },
+    elapsedMinutes: {
+      type: Number,
+      required: false,
+    },
   },
   {
     collection: 'bookings',
@@ -48,6 +54,9 @@ const bookingSchema = new Schema<BookingDocument>(
   },
 )
 
-const Booking: Model<BookingDocument> = mongoose.model<BookingDocument>('Booking', bookingSchema)
+const Booking: Model<BookingDocument> = mongoose.model<BookingDocument>(
+  'Booking',
+  bookingSchema,
+)
 
 export { Booking, BookingInput, BookingDocument }

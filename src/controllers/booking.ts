@@ -1,6 +1,14 @@
 import { Request, Response } from 'express'
 import { Booking, BookingInput } from '../models/booking'
 import { ParkingSlot, ParkingSlotStatus } from '../models/parkingSlot'
+import dayjs from 'dayjs'
+import * as config from './../config'
+
+// import utc from 'dayjs/plugin/utc'
+// import timezone from 'dayjs/plugin/timezone'
+// dayjs.extend(utc)
+// dayjs.extend(timezone)
+// dayjs.tz.setDefault('America/Santiago')
 
 const getBookingList = async (req: Request, res: Response) => {
   const bookings = await Booking.find().exec()
@@ -31,33 +39,47 @@ export const createBooking = async (req: Request, res: Response) => {
   return res.status(201).json({ data: bookingCreated })
 }
 
-interface FinishBookingParams {
-  parkingSlotId: BookingInput['parkingSlotId']
-  total: BookingInput['total']
-}
 export const finishBooking = async (req: Request, res: Response) => {
-  const { parkingSlotId, total }: FinishBookingParams = req.body
   const { bookingId } = req.params
 
-  if (!bookingId || !parkingSlotId || !total) {
-    return res
-      .status(422)
-      .json({
-        message: 'The fields bookingId, parkingSlotId and price  are required',
-      })
+  if (!bookingId) {
+    return res.status(422).json({ message: 'The field bookingId is required' })
   }
 
-  const bookingFinished = await Booking.findByIdAndUpdate(
-    { _id: bookingId },
-    { $set: { total, finishedAt: new Date() } },
-  )
+  try {
+    const booking = await Booking.findOne({ _id: bookingId })
+    if (!booking) {
+      return res
+        .status(404)
+        .json({ message: `Booking ID: ${bookingId} not found` })
+    }
 
-  await ParkingSlot.findByIdAndUpdate(
-    { _id: parkingSlotId },
-    { $set: { status: ParkingSlotStatus.AVAILABLE } },
-  )
+    const isBookingFinished = booking.total || booking.finishedAt
 
-  return res.status(201).json({ data: bookingFinished })
+    if (isBookingFinished) {
+      return res.status(400).json({ message: 'booking is already finished' })
+    }
+
+    const elapsedMinutes = dayjs().diff(dayjs(booking.startedAt), 'minutes')
+
+    const totalCost = elapsedMinutes * config.COST_PER_MINUTE
+
+    const bookingFinished = await Booking.findByIdAndUpdate(
+      { _id: bookingId },
+      { $set: { total: totalCost, finishedAt: new Date(), elapsedMinutes } },
+      { new: true },
+    )
+
+    await ParkingSlot.findByIdAndUpdate(
+      { _id: booking.parkingSlotId },
+      { $set: { status: ParkingSlotStatus.AVAILABLE } },
+    )
+
+    return res.status(201).json({ data: bookingFinished })
+  } catch (err: any) {
+    console.error(err.message)
+    return res.status(400).json({ message: 'an error has ocurred' })
+  }
 }
 
 export { getBookingList }
