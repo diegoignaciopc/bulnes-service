@@ -1,7 +1,14 @@
 import { Request, Response } from 'express'
 import { Booking, BookingInput } from '../models/booking'
 import { ParkingSlot, ParkingSlotStatus } from '../models/parkingSlot'
+import dayjs from 'dayjs'
 import * as config from './../config'
+
+// import utc from 'dayjs/plugin/utc'
+// import timezone from 'dayjs/plugin/timezone'
+// dayjs.extend(utc)
+// dayjs.extend(timezone)
+// dayjs.tz.setDefault('America/Santiago')
 
 const getBookingList = async (req: Request, res: Response) => {
   const bookings = await Booking.find().exec()
@@ -46,21 +53,33 @@ export const finishBooking = async (req: Request, res: Response) => {
         .status(404)
         .json({ message: `Booking ID: ${bookingId} not found` })
     }
-    return res.status(201).json({ data: booking })
+
+    const isBookingFinished = booking.total || booking.finishedAt
+
+    if (isBookingFinished) {
+      return res.status(400).json({ message: 'booking is already finished' })
+    }
+
+    const elapsedMinutes = dayjs().diff(dayjs(booking.startedAt), 'minutes')
+
+    const totalCost = elapsedMinutes * config.COST_PER_MINUTE
+
+    const bookingFinished = await Booking.findByIdAndUpdate(
+      { _id: bookingId },
+      { $set: { total: totalCost, finishedAt: new Date(), elapsedMinutes } },
+      { new: true },
+    )
+
+    await ParkingSlot.findByIdAndUpdate(
+      { _id: booking.parkingSlotId },
+      { $set: { status: ParkingSlotStatus.AVAILABLE } },
+    )
+
+    return res.status(201).json({ data: bookingFinished })
   } catch (err: any) {
     console.error(err.message)
     return res.status(400).json({ message: 'an error has ocurred' })
   }
-
-  /*const bookingFinished = await Booking.findByIdAndUpdate(
-    { _id: bookingId },
-    { $set: { total, finishedAt: new Date() } },
-  )
-
-  await ParkingSlot.findByIdAndUpdate(
-    { _id: parkingSlotId },
-    { $set: { status: ParkingSlotStatus.AVAILABLE } },
-  )*/
 }
 
 export { getBookingList }
