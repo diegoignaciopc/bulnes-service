@@ -9,11 +9,19 @@ const login = async (req: Request, res: Response) => {
 
     if (!result) return res.status(404).json({ err: 'usuario no encontrado' })
 
-    const passwordsMatch = bcrypt.compareSync(req.body.password, result.password)
+    const passwordsMatch = bcrypt.compareSync(
+      req.body.password,
+      result.password,
+    )
 
     if (passwordsMatch) {
       jwt.sign(
-        { uid: result._id, email: result.email },
+        {
+          uid: result._id,
+          email: result.email,
+          name: result.name,
+          phone: result.phone,
+        },
         'key8AS90D8SA90',
         (err: any, token: any) => {
           if (err) return res.status(400).json({ err })
@@ -38,10 +46,18 @@ const register = async (req: Request, res: Response) => {
   const existingUser = await Users.findOne({ email })
 
   if (existingUser) {
-    return res.status(400).json({ message: 'User email already exist, try with another one.' })
+    return res
+      .status(400)
+      .json({ message: 'User email already exist, try with another one.' })
   }
 
-  const user = new Users({ name, password: bcrypt.hashSync(password, 10), email, dni, phone })
+  const user = new Users({
+    name,
+    password: bcrypt.hashSync(password, 10),
+    email,
+    dni,
+    phone,
+  })
 
   user.save((err) => {
     if (err) return res.status(400).json({ err })
