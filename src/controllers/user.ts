@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 
 const login = async (req: Request, res: Response) => {
   await Users.findOne({ email: req.body.email }, (err: any, result: any) => {
-    if (err) return res.status(400).json({ err })
+    if (err) return res.status(400).json({ message: err })
 
     if (!result) return res.status(404).json({ err: 'usuario no encontrado' })
 
