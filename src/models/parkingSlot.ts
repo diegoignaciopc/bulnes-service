@@ -8,6 +8,7 @@ export enum ParkingSlotStatus {
 interface ParkingSlotDocument extends Document {
   _id?: ObjectId
   name: string
+  bookingReference?: string
   status: ParkingSlotStatus
 }
 
@@ -15,6 +16,7 @@ interface ParkingSlotInput {
   _id?: ParkingSlotDocument['_id']
   name: ParkingSlotDocument['name']
   status: ParkingSlotDocument['status']
+  boookingReference?: ParkingSlotDocument['bookingReference']
 }
 
 const parkingSlotSchema = new Schema<ParkingSlotDocument>(
@@ -28,6 +30,9 @@ const parkingSlotSchema = new Schema<ParkingSlotDocument>(
       default: ParkingSlotStatus.AVAILABLE,
       enum: Object.values(ParkingSlotStatus),
     },
+    bookingReference: {
+      type: String,
+    },
   },
   {
     collection: 'parkingSlots',
@@ -35,9 +40,6 @@ const parkingSlotSchema = new Schema<ParkingSlotDocument>(
   },
 )
 
-const ParkingSlot: Model<ParkingSlotDocument> = mongoose.model<ParkingSlotDocument>(
-  'ParkingSlot',
-  parkingSlotSchema,
-)
+const ParkingSlot: Model<ParkingSlotDocument> = mongoose.model<ParkingSlotDocument>('ParkingSlot', parkingSlotSchema)
 
 export { ParkingSlot, ParkingSlotInput, ParkingSlotDocument }
