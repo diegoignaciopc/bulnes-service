@@ -4,12 +4,6 @@ import { ParkingSlot, ParkingSlotStatus } from '../models/parkingSlot'
 import dayjs from 'dayjs'
 import * as config from './../config'
 
-// import utc from 'dayjs/plugin/utc'
-// import timezone from 'dayjs/plugin/timezone'
-// dayjs.extend(utc)
-// dayjs.extend(timezone)
-// dayjs.tz.setDefault('America/Santiago')
-
 const getBookingList = async (req: Request, res: Response) => {
   const bookings = await Booking.find().exec()
 
@@ -23,8 +17,15 @@ export const createBooking = async (req: Request, res: Response) => {
     return res.status(422).json({ message: 'The fields parkingSlotId and plate are required' })
   }
 
+  const parkingSlot = await ParkingSlot.findOne({ _id: parkingSlotId })
+
+  if (!parkingSlot) {
+    return res.status(422).json({ message: `Parking Slot with id ${parkingSlotId} was not found` })
+  }
+
   const bookingCreated = await Booking.create<BookingInput>({
     parkingSlotId,
+    parkingSlotName: parkingSlot.name,
     plate,
     startedAt: new Date(),
   })

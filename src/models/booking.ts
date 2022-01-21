@@ -3,6 +3,7 @@ import mongoose, { Document, Model, ObjectId, Schema } from 'mongoose'
 interface BookingDocument extends Document {
   _id?: ObjectId
   parkingSlotId: ObjectId
+  parkingSlotName: string
   startedAt?: Date
   finishedAt?: Date
   total?: number
@@ -13,6 +14,7 @@ interface BookingDocument extends Document {
 interface BookingInput {
   _id?: BookingDocument['_id']
   parkingSlotId: BookingDocument['parkingSlotId']
+  parkingSlotName: BookingDocument['parkingSlotName']
   startedAt?: BookingDocument['startedAt']
   finishedAt?: BookingDocument['finishedAt']
   total?: BookingDocument['total']
@@ -24,6 +26,10 @@ const bookingSchema = new Schema<BookingDocument>(
   {
     parkingSlotId: {
       type: Schema.Types.ObjectId,
+      required: true,
+    },
+    parkingSlotName: {
+      type: String,
       required: true,
     },
     startedAt: {
@@ -54,9 +60,6 @@ const bookingSchema = new Schema<BookingDocument>(
   },
 )
 
-const Booking: Model<BookingDocument> = mongoose.model<BookingDocument>(
-  'Booking',
-  bookingSchema,
-)
+const Booking: Model<BookingDocument> = mongoose.model<BookingDocument>('Booking', bookingSchema)
 
 export { Booking, BookingInput, BookingDocument }
